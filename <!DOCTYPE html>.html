@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kahoot Namensschmiede</title>
+<style>
+  :root {
+    --kahoot-violet: #46178f;
+    --kahoot-purple: #7f3f98;
+    --kahoot-pink: #d41f8d;
+    --kahoot-blue: #2686de;
+    --white: #ffffff;
+    font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+  }
+  body {
+    margin:0;
+    background: linear-gradient(135deg, var(--kahoot-violet), var(--kahoot-purple), var(--kahoot-pink), var(--kahoot-blue));
+    background-size: 300% 300%;
+    animation: bgshift 15s ease infinite;
+    color: var(--white);
+  }
+  @keyframes bgshift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  header {
+    background: rgba(0,0,0,0.2);
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color: var(--white);
+  }
+  .logo svg { height:40px; }
+  h1 { font-size:22px; margin:0; font-weight:700; letter-spacing:0.5px; }
+  main {
+    max-width:800px;
+    margin:30px auto;
+    padding:24px;
+    background:rgba(255,255,255,0.12);
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+  }
+  .controls {
+    margin-bottom:20px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:12px;
+  }
+  select {
+    padding:12px 14px;
+    border-radius:10px;
+    border:none;
+    font-size:15px;
+    cursor:pointer;
+  }
+  .btn {
+    border:none;
+    padding:12px 20px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition: all .2s;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  }
+  .btn-generate { background:var(--kahoot-pink); color:white; }
+  .btn-copy { background:var(--kahoot-blue); color:white; }
+  .btn:hover { transform:scale(1.08); box-shadow:0 6px 14px rgba(0,0,0,0.3); }
+  .name-display {
+    font-size:32px;
+    font-weight:800;
+    margin:24px 0;
+    padding:20px;
+    border-radius:14px;
+    background:linear-gradient(90deg, var(--white), #f0f0ff);
+    color:var(--kahoot-violet);
+    display:inline-block;
+    min-width:240px;
+    position:relative;
+    overflow:hidden;
+  }
+  .pop { animation:pop .4s ease; }
+  @keyframes pop {
+    0% { transform:scale(0.6); opacity:0; }
+    70% { transform:scale(1.1); opacity:1; }
+    100% { transform:scale(1); }
+  }
+  .star {
+    position:absolute;
+    font-size:18px;
+    color:gold;
+    animation:starpop 0.8s ease forwards;
+  }
+  @keyframes starpop {
+    0% { opacity:1; transform:scale(0.5) translateY(0); }
+    100% { opacity:0; transform:scale(1.5) translateY(-40px); }
+  }
+  .history {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-top:16px;
+    max-height:140px;
+    overflow-y:auto;
+  }
+  .chip {
+    background:rgba(255,255,255,0.25);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:14px;
+    cursor:pointer;
+    transition:background .2s;
+  }
+  .chip:hover { background:rgba(255,255,255,0.4); }
+  .copied {
+    color:lime;
+    font-size:14px;
+    margin-left:8px;
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .copied.show { opacity:1; }
+  section.info {
+    margin-top:40px;
+    padding:20px;
+    background:rgba(255,255,255,0.1);
+    border-radius:12px;
+    text-align:left;
+  }
+  section.info h2 {
+    font-size:18px;
+    margin-bottom:8px;
+  }
+  section.info p {
+    font-size:14px;
+    line-height:1.6;
+    margin:0 0 10px;
+  }
+  /* Responsive */
+  @media(max-width:600px){
+    .controls { flex-direction:column; }
+    select, .btn { width:100%; }
+    .name-display { font-size:24px; width:100%; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <!-- Kahoot-Logo (SVG Version K!) -->
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <text x="10" y="140" font-family="Arial Black, sans-serif" font-size="140" font-weight="bold" fill="white">K!</text>
+      </svg>
+    </div>
+    <h1>Kahoot Namensschmiede Ultimate</h1>
+  </header>
+  <main>
+    <div class="controls">
+      <select id="categorySelect">
+        <option value="all">Alle Kategorien</option>
+        <option value="kreativ">Kreativ</option>
+        <option value="freunde">Freunde</option>
+        <option value="pervers">Perverse</option>
+        <option value="ehrenlos">Ehrenlose</option>
+        <option value="schwarz">Schwarzer Humor</option>
+        <option value="cool">Coole</option>
+      </select>
+      <button id="btnGen" class="btn btn-generate">🎲 Generieren</button>
+      <button id="btnCopy" class="btn btn-copy">📋 Kopieren</button>
+      <span id="copied" class="copied">Kopiert!</span>
+    </div>
+    <div id="display" class="name-display">— Wähle Kategorie & Generiere —</div>
+    <div class="history" id="history"></div>
+
+    <section class="info">
+      <h2>ℹ️ Über die Namensschmiede</h2>
+      <p>
+        Mit der <b>Kahoot Namensschmiede</b> kannst du dir witzige, kreative oder völlig
+        verrückte Namen für dein nächstes Kahoot-Quiz generieren. 
+      </p>
+      <p>
+        Wähle oben eine Kategorie (z. B. <i>Kreativ</i>, <i>Perverse</i>, <i>Schwarzer Humor</i>)
+        oder lass dich mit <i>Alle Kategorien</i> komplett überraschen.
+      </p>
+      <p>
+        Jeder Klick auf „Generieren“ liefert dir einen neuen Namen, der unten im Verlauf gespeichert wird. 
+        Mit einem Klick auf einen Chip kannst du ihn jederzeit erneut kopieren. 
+      </p>
+      <p>
+        🎉 Tipp: Nutze die Namen mit Humor und Respekt – sie sind für Spaß in der Runde gedacht!
+      </p>
+    </section>
+  </main>
+  <audio id="soundGen" src="sound-rand.mp3" preload="auto"></audio>
+  <audio id="soundCopy" src="sound-copy.mp3" preload="auto"></audio>
+
+<script>
+/* --- Kategorien mit Namen --- */
+const categories = {
+  kreativ: ["Peter Silie","Rainer Zufall","Anna Bolika","Marie Huana","Ilse Kalt","Theo Retisch","Hella Wahnsinn","Nick Olaus","Klara Fall","Gerold Steiner","Erkan Alles","Claire Grube","Uwe Boll","Axel Schweiß","Susi Sorglos","Rosa Schülpfer","Barbie Licious","BratwurstBrigade","Peter Lustig","Lade…","IchWeissAlles"],
+  freunde: ["BananaJoe","Lieblingsfreund","Kumpelblase","Zweistein","SchnitzelMitPommes","Papa Schlumpf","Party Bruder","Brudi030","GucciGurke","Playboy","MissTake","NurHundegewinnen","BlondieMitPlan","31er","Manuellsen","IchBinNichtLetzter"],
+  pervers: ["Fixi Hartmann","Willma Reinda","Willhard Vichsen","Meinhard S. Rohr","Gisela Gleitgel","Klaudia Klitoral","Hoden Sack","Lexi Doller","Ben Dover","Mike Litoris","Anita Bums"],
+  ehrenlos: ["Non-binär","Fenerbahçe Love","Afghanbomber","Corona Impfung","Puffgänger","Putinlover","Volker Racho","IchWarDasNicht","Gott 2.0","BrudiMitSinn","Kanackattack","Tscherno Bill","Kim Jong Uff","Hörst du mich, Lehrer?","OmaKnallt","Tinderopa","SargNagel","Klimakatastrophi","BurnoutBarbie"],
+  schwarz: ["Darth Reiner","Tscherno Bill","Kim Jong Uff","Hörst du mich, Lehrer?","OmaKnallt","Tinderopa","Huso","SargNagel","Klimakatastrophi","NotarztKlaus","BurnoutBarbie"],
+  cool: ["IronVan","Elon Musketeer","GandalfDerGraue","Sherlock OhnePlan","TikTakBoom","NinjaNeuron","Captain Cringe","Quizmaster3000","NeoKahoot","IQOver9000"]
+};
+
+function allNames(){ return Object.values(categories).flat(); }
+
+const btnGen = document.getElementById("btnGen");
+const btnCopy = document.getElementById("btnCopy");
+const display = document.getElementById("display");
+const historyEl = document.getElementById("history");
+const copiedEl = document.getElementById("copied");
+const soundGen = document.getElementById("soundGen");
+const soundCopy = document.getElementById("soundCopy");
+const categorySelect = document.getElementById("categorySelect");
+
+let history = [];
+
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+btnGen.addEventListener("click", ()=>{
+  let cat = categorySelect.value;
+  let list = cat==="all" ? allNames() : categories[cat];
+  const name = pickRandom(list);
+  display.textContent = name;
+  display.classList.remove("pop");
+  void display.offsetWidth;
+  display.classList.add("pop");
+  history.unshift(name);
+  if(history.length>25) history.pop();
+  renderHistory();
+  soundGen.play().catch(()=>{});
+  spawnStars();
+});
+
+btnCopy.addEventListener("click", ()=>{
+  const text = display.textContent;
+  if(text.startsWith("—")) return;
+  navigator.clipboard.writeText(text);
+  soundCopy.play().catch(()=>{});
+  copiedEl.classList.add("show");
+  setTimeout(()=>copiedEl.classList.remove("show"),1000);
+});
+
+function renderHistory(){
+  historyEl.innerHTML="";
+  history.forEach(n=>{
+    const chip=document.createElement("div");
+    chip.className="chip";
+    chip.textContent=n;
+    chip.onclick=()=>{
+      navigator.clipboard.writeText(n);
+      copiedEl.classList.add("show");
+      setTimeout(()=>copiedEl.classList.remove("show"),1000);
+    };
+    historyEl.appendChild(chip);
+  });
+}
+
+function spawnStars(){
+  for(let i=0;i<3;i++){
+    const star=document.createElement("div");
+    star.className="star";
+    star.textContent="✨";
+    star.style.left=(20+Math.random()*200)+"px";
+    star.style.bottom="0px";
+    display.appendChild(star);
+    setTimeout(()=>star.remove(),800);
+  }
+}
+</script>
+</body>
+</html>
